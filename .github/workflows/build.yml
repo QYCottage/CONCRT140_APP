@@ -1,0 +1,46 @@
+name: Build DLL
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build DLL
+        run: |
+          xmake f -m release
+          xmake
+
+      - name: Find DLL
+        id: finddll
+        run: |
+          $dll = Get-ChildItem -Recurse -Filter *.dll | Where-Object { $_.FullName -match 'build\\windows\\x64.*release' }
+          if ($dll) {
+            echo "dllpath=$($dll.FullName)" >> $env:GITHUB_OUTPUT
+          } else {
+            echo "::error::DLL not found."
+            exit 1
+          }
+
+      - name: Upload DLL Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPHLPAPI-dll
+          path: ${{ steps.finddll.outputs.dllpath }}
+
+      - name: Create Release and Upload DLL
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.finddll.outputs.dllpath }}
