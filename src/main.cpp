@@ -27,9 +27,12 @@ void LoadAllPlugins() {
   std::filesystem::path exeDir(szModulePath);
   exeDir = exeDir.parent_path();
 
-  std::filesystem::path pluginsPath = exeDir / "plugins";
-  if (!std::filesystem::exists(pluginsPath) ||
-      !std::filesystem::is_directory(pluginsPath)) {
+  std::filesystem::path pluginsPath = exeDir / "mods";
+  if (!std::filesystem::exists(pluginsPath)) {
+    std::filesystem::create_directory(pluginsPath);
+    return;
+  }
+  if (!std::filesystem::is_directory(pluginsPath)) {
     return;
   }
 
@@ -42,7 +45,6 @@ void LoadAllPlugins() {
     }
   }
 }
-
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
   if (fdwReason == DLL_PROCESS_ATTACH) {
     // ShowConsole();
