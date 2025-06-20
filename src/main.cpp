@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <windows.h>
 
-#pragma comment(linker, "/export:GetAdaptersAddresses=run")
+#pragma comment(linker, "/export:?wait@Concurrency@@YAXI@Z=run")
 
 extern "C" void run() {}
 
