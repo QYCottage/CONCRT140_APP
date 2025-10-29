@@ -1,7 +1,7 @@
 add_rules("mode.debug", "mode.release")
 
 set_runtimes("MD")
-target("CONCRT140_APP")
+target("WINHTTP")
     set_kind("shared")
-    add_files("src/*.cpp")
+    add_files("src/*.cpp","src/*.def","src/*.asm")
     set_languages("c++20")
