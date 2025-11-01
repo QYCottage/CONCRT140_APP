@@ -72,51 +72,8 @@ __E__56__orig WinHttpSetTimeouts_orig;
 typedef BOOL(__stdcall *__E__65__orig)(HINTERNET, LPCVOID, DWORD, LPDWORD);
 __E__65__orig WinHttpWriteData_orig;
 
-void LoadAllMods() {
-  char szModulePath[MAX_PATH]{};
-  if (!GetModuleFileNameA(nullptr, szModulePath, MAX_PATH)) {
-    std::cout << "[ERROR] GetModuleFileNameA failed. Error: " << GetLastError()
-              << std::endl;
-    return;
-  }
+void LoadAllMods();
 
-  std::filesystem::path exeDir(szModulePath);
-  exeDir = exeDir.parent_path();
-  std::filesystem::path pluginsPath = exeDir / "mods";
-
-  if (!std::filesystem::exists(pluginsPath)) {
-    std::filesystem::create_directory(pluginsPath);
-    return;
-  }
-
-  for (const auto &entry : std::filesystem::directory_iterator(pluginsPath)) {
-    if (entry.is_regular_file() && entry.path().extension() == ".dll") {
-      std::cout << "[INFO] Loading plugin: " << entry.path().filename().string()
-                << std::endl;
-      HMODULE mod = LoadLibraryA(entry.path().string().c_str());
-      if (!mod) {
-        std::cout << "[ERROR] Failed to load plugin " << entry.path()
-                  << " code " << GetLastError() << std::endl;
-      }
-    }
-  }
-}
-void openConsole() {
-  if (AllocConsole()) {
-    SetConsoleTitleA("Debug Console");
-    system("chcp 65001>nul");
-
-    FILE *fp = nullptr;
-    freopen_s(&fp, "CONOUT$", "w", stdout);
-    freopen_s(&fp, "CONOUT$", "w", stderr);
-    freopen_s(&fp, "CONIN$", "r", stdin);
-
-    setvbuf(stdout, nullptr, _IONBF, 0);
-    setvbuf(stderr, nullptr, _IONBF, 0);
-    setvbuf(stdin, nullptr, _IONBF, 0);
-    std::cout.clear();
-  }
-}
 BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID unk) {
   if (reason == DLL_PROCESS_ATTACH) {
     char exePath[MAX_PATH]{};
@@ -130,7 +87,6 @@ BOOL WINAPI DllMain(HINSTANCE hInst, DWORD reason, LPVOID unk) {
     std::string exeName = exeFile.filename().string();
 
     if (_stricmp(exeName.c_str(), "Minecraft.Windows.exe") == 0) {
-      openConsole();
       LoadAllMods();
     }
     hLThis = hInst;
