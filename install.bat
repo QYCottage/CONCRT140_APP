@@ -19,7 +19,7 @@ for /f "delims=" %%I in ('powershell -NoProfile -Command "(Get-AppxPackage -Name
     set "InstallPath=%%I"
 )
 
-if "%InstallPath%"=="" (
+if not defined InstallPath (
     echo Microsoft.MinecraftUWP was not found. Please make sure it is installed.
     pause
     exit /b 1
